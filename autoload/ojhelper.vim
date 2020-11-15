@@ -7,30 +7,36 @@ if executable('oj')
         \}
   let g:ojhelper#lang_commands = {
         \'go': 'go run',
-        \'python': 'python',
+        \'python': 'python3',
         \'bash': 'bash',
+        \'javascript': 'node',
         \}
   let g:ojhelper#lang_extensions = {
         \'go': 'go',
         \'python': 'py',
         \'bash': 'sh',
+        \'javascript': 'js',
         \}
+  let g:ojhelper#executable_binary = 'main'
 
   " update configurations by each user setting
-  if exists("g:oj_helper_submit_confirms") && type(g:oj_helper_submit_confirms) == 4
+  if exists("g:oj_helper_submit_confirms") && type(g:oj_helper_submit_confirms) == v:t_dict
     for s:key in keys(g:oj_helper_submit_confirms)
       let g:ojhelper#submit_confirms[s:key] = g:oj_helper_submit_confirms[s:key]
     endfor
   endif
-  if exists("g:oj_helper_lang_commands") && type(g:oj_helper_lang_commands) == 4
+  if exists("g:oj_helper_lang_commands") && type(g:oj_helper_lang_commands) == v:t_dict
     for s:key in keys(g:oj_helper_lang_commands)
       let g:ojhelper#lang_commands[s:key] = g:oj_helper_lang_commands[s:key]
     endfor
   endif
-  if exists("g:oj_helper_lang_extensions") && type(g:oj_helper_lang_extensions) == 4
+  if exists("g:oj_helper_lang_extensions") && type(g:oj_helper_lang_extensions) == v:t_dict
     for s:key in keys(g:oj_helper_lang_extensions)
       let g:ojhelper#lang_extensions[s:key] = g:oj_helper_lang_extensions[s:key]
     endfor
+  endif
+  if exists("g:oj_helper_executable_binary") && type(g:oj_helper_executable_binary) == v:t_string
+    let g:ojhelper#executable_binary = g:oj_helper_executable_binary
   endif
 
   " Read problem's URL from current buffer
@@ -118,6 +124,26 @@ if executable('oj')
     endif
 
     let l:command = s:MakeTestSamplesCommand(a:lang)
+    echo "[Run] " . l:command . "\n"
+    call execute('vs')
+    call execute('terminal ' . l:command)
+  endfunction
+
+  function! g:ojhelper#TestSamplesByExecutableBinary()
+    let l:cur_buf_dir = expand("%:h")
+    let l:lang_exe_bin = l:cur_buf_dir . "/" . g:ojhelper#executable_binary
+
+    " error handling
+    let l:file_type = getftype(l:lang_exe_bin)
+    if l:file_type !=# "file"
+      echoerr '[Error] The executable binary file is not found.'
+      return
+    endif
+
+    let l:sample_file_dir = l:cur_buf_dir . "/test"
+    let l:command = printf("oj test -c \"%s\" -d %s -t 4",
+          \l:lang_exe_bin, l:sample_file_dir)
+
     echo "[Run] " . l:command . "\n"
     call execute('vs')
     call execute('terminal ' . l:command)
