@@ -18,6 +18,8 @@ if executable('oj')
         \'javascript': 'js',
         \}
   let g:ojhelper#executable_binary = 'main'
+  let g:ojhelper#search_url_s_line = 0
+  let g:ojhelper#search_url_t_line = 10
 
   " update configurations by each user setting
   if exists("g:oj_helper_submit_confirms") && type(g:oj_helper_submit_confirms) == v:t_dict
@@ -38,12 +40,18 @@ if executable('oj')
   if exists("g:oj_helper_executable_binary") && type(g:oj_helper_executable_binary) == v:t_string
     let g:ojhelper#executable_binary = g:oj_helper_executable_binary
   endif
+  if exists("g:oj_helper_search_url_s_line") && type(g:oj_helper_search_url_s_line) == v:t_number
+    let g:ojhelper#search_url_s_line = g:oj_helper_search_url_s_line
+  endif
+  if exists("g:oj_helper_search_url_t_line") && type(g:oj_helper_search_url_t_line) == v:t_number
+    let g:ojhelper#search_url_t_line = g:oj_helper_search_url_t_line
+  endif
 
   " Read problem's URL from current buffer
   " This function assumes that *first matched* URL is the right URL.
   " This function returns a empty string if the current buffer has no URL.
   function! s:ReadProblemURLFromCurrentBuffer()
-    let l:lines = getline(0, 10)
+    let l:lines = getline(g:ojhelper#search_url_s_line, g:ojhelper#search_url_t_line)
     for l:line in l:lines
       let l:record = split(l:line, ' ')
       for l:r in l:record
@@ -112,14 +120,14 @@ if executable('oj')
     return l:test_command
   endfunction
 
-  function! g:ojhelper#TestSamples(lang)
+  function! g:ojhelper#TestSamplesByLangCommand(lang)
     " error handling
     if !s:IsLanguageCommandDefined(a:lang)
       echoerr '[Error] The language command is not defined.'
       return
     endif
     if !s:DoesLanguageMatchFileExtension(a:lang)
-      echoerr '[Error] The language does not match the current buffer file.'
+      echoerr '[Error] The language does not match the current buffer file extension.'
       return
     endif
 
