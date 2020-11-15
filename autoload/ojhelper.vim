@@ -1,4 +1,38 @@
 if executable('oj')
+  " default configurations
+  let g:ojhelper#submit_confirms = {
+        \'atcoder': 'AtCoder: Submit OK?',
+        \'codeforces': 'Codeforces: Submit OK?',
+        \'yukicoder': 'yukicoder: Submit OK?',
+        \}
+  let g:ojhelper#lang_commands = {
+        \'go': 'go run',
+        \'python': 'python',
+        \'bash': 'bash',
+        \}
+  let g:ojhelper#lang_extensions = {
+        \'go': 'go',
+        \'python': 'py',
+        \'bash': 'sh',
+        \}
+
+  " update configurations by each user setting
+  if exists("g:oj_helper_submit_confirms") && type(g:oj_helper_submit_confirms) == 4
+    for s:key in keys(g:oj_helper_submit_confirms)
+      let g:ojhelper#submit_confirms[s:key] = g:oj_helper_submit_confirms[s:key]
+    endfor
+  endif
+  if exists("g:oj_helper_lang_commands") && type(g:oj_helper_lang_commands) == 4
+    for s:key in keys(g:oj_helper_lang_commands)
+      let g:ojhelper#lang_commands[s:key] = g:oj_helper_lang_commands[s:key]
+    endfor
+  endif
+  if exists("g:oj_helper_lang_extensions") && type(g:oj_helper_lang_extensions) == 4
+    for s:key in keys(g:oj_helper_lang_extensions)
+      let g:ojhelper#lang_extensions[s:key] = g:oj_helper_lang_extensions[s:key]
+    endfor
+  endif
+
   " Read problem's URL from current buffer
   " This function assumes that *first matched* URL is the right URL.
   " This function returns a empty string if the current buffer has no URL.
@@ -26,26 +60,26 @@ if executable('oj')
     return l:dl_command
   endfunction
 
-  function! s:DownloadSamples(url)
+  function! g:ojhelper#DownloadSamples()
+    let l:url = s:ReadProblemURLFromCurrentBuffer()
+
     " error handling
-    if a:url ==# ''
+    if l:url ==# ''
       echoerr '[Error] The problem url is not found.'
       return
     endif
 
-    let l:command = s:MakeSampleDLCommand(a:url)
+    let l:command = s:MakeSampleDLCommand(l:url)
     echo "[Run] " . l:command . "\n"
     call execute('vs')
     call execute('terminal ' . l:command)
   endfunction
 
-  command! -nargs=0 DownloadSamples :call s:DownloadSamples(s:ReadProblemURLFromCurrentBuffer())
-
   "
   " test samples
   "
   function! s:IsLanguageCommandDefined(lang)
-    let l:lang_command = get(g:oj_helper#lang_commands, a:lang, '')
+    let l:lang_command = get(g:ojhelper#lang_commands, a:lang, '')
     if l:lang_command ==# ''
       return 0
     endif
@@ -54,7 +88,7 @@ if executable('oj')
 
   function! s:DoesLanguageMatchFileExtension(lang)
     let l:cur_buf_ext = expand("%:e")
-    let l:lang_ext = get(g:oj_helper#lang_extensions, a:lang, '')
+    let l:lang_ext = get(g:ojhelper#lang_extensions, a:lang, '')
     if l:lang_ext !=# l:cur_buf_ext
       return 0
     endif
@@ -65,14 +99,14 @@ if executable('oj')
     let l:cur_buf_file = expand("%")
     let l:cur_buf_dir = expand("%:h")
     let l:sample_file_dir = l:cur_buf_dir . "/test"
-    let l:lang_command = get(g:oj_helper#lang_commands, a:lang, '')
+    let l:lang_command = get(g:ojhelper#lang_commands, a:lang, '')
 
     let l:test_command = printf("oj test -c \"%s %s\" -d %s -t 4",
           \l:lang_command, l:cur_buf_file, l:sample_file_dir)
     return l:test_command
   endfunction
 
-  function! s:TestSamples(lang)
+  function! g:ojhelper#TestSamples(lang)
     " error handling
     if !s:IsLanguageCommandDefined(a:lang)
       echoerr '[Error] The language command is not defined.'
@@ -89,20 +123,12 @@ if executable('oj')
     call execute('terminal ' . l:command)
   endfunction
 
-  " e.g.: OjTest go
-  command! -nargs=1 OjTest :call s:TestSamples(<f-args>)
-
   "
   " submit code
   "
-  " function! s:IsHostCodeforce(url)
-  "   " sample: https://codeforces.com/contest/1430/problem/A#
-  "   let l:str = matchstr(a:url, '^\(http\|https\)://codeforces.com')
-  "   return l:str
-  " endfunction
   function! s:CaptureSiteName(url)
     let l:lower_url = tolower(a:url)
-    for l:site_name in keys(g:oj_helper#submit_confirms)
+    for l:site_name in keys(g:ojhelper#submit_confirms)
       let l:matched_str = matchstr(l:lower_url, l:site_name)
       if l:matched_str != ''
         return l:site_name
@@ -117,16 +143,18 @@ if executable('oj')
     return l:submit_command
   endfunction
 
-  function! s:SubmitCode(url)
+  function! g:ojhelper#SubmitCode()
+    let l:url = s:ReadProblemURLFromCurrentBuffer()
+
     " error handling
-    if a:url ==# ''
+    if l:url ==# ''
       echoerr '[Error] The problem url is not found.'
       return
     endif
 
     " confirmation for each site
-    let l:site_name = s:CaptureSiteName(a:url)
-    let l:confirm_msg = get(g:oj_helper#submit_confirms, l:site_name, '')
+    let l:site_name = s:CaptureSiteName(l:url)
+    let l:confirm_msg = get(g:ojhelper#submit_confirms, l:site_name, '')
     if l:confirm_msg != ''
       let l:ok = confirm(l:confirm_msg, "y yes\nn no")
       if l:ok != 1
@@ -135,12 +163,9 @@ if executable('oj')
     endif
 
     " run
-    let l:command = s:MakeSubmitCommand(a:url)
+    let l:command = s:MakeSubmitCommand(l:url)
     echo "[Run] " . l:command . "\n"
     call execute('vs')
     call execute('terminal ' . l:command)
   endfunction
-
-  command! -nargs=0 OjSubmit :call s:SubmitCode(s:ReadProblemURLFromCurrentBuffer())
 endif
-
