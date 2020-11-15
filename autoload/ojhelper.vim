@@ -1,7 +1,7 @@
 "=============================================================================
 " vim-oj-helper
 " Author: @maguroguma0712
-" Last Change: 2020-11-16 01:08:56.
+" Last Change: 2020-11-16 02:11:39.
 
 if executable('oj')
   """
@@ -28,6 +28,7 @@ if executable('oj')
   let g:ojhelper#executable_binary = 'main'
   let g:ojhelper#search_url_s_line = 0
   let g:ojhelper#search_url_t_line = 10
+  let g:ojhelper#testcase_dir_name = 'test'
 
   " update configurations by each user setting
   if exists("g:oj_helper_submit_confirms") && type(g:oj_helper_submit_confirms) == v:t_dict
@@ -53,6 +54,9 @@ if executable('oj')
   endif
   if exists("g:oj_helper_search_url_t_line") && type(g:oj_helper_search_url_t_line) == v:t_number
     let g:ojhelper#search_url_t_line = g:oj_helper_search_url_t_line
+  endif
+  if exists("g:oj_helper_testcase_dir_name") && type(g:oj_helper_testcase_dir_name) == v:t_string
+    let g:ojhelper#testcase_dir_name = g:oj_helper_testcase_dir_name
   endif
 
   """
@@ -99,7 +103,6 @@ if executable('oj')
       endif
     endif
 
-    " run
     let l:command = s:MakeSubmitCommand(l:url)
     echo "[Run] " . l:command . "\n"
     call execute('vs')
@@ -138,7 +141,7 @@ if executable('oj')
       return
     endif
 
-    let l:sample_file_dir = l:cur_buf_dir . "/test"
+    let l:sample_file_dir = l:cur_buf_dir . "/" . g:ojhelper#testcase_dir_name
     let l:command = printf("oj test -c \"%s\" -d %s -t 4",
           \l:lang_exe_bin, l:sample_file_dir)
 
@@ -171,7 +174,7 @@ if executable('oj')
   " Make oj's download command.
   function! s:MakeSampleDLCommand(url)
     let l:cur_buf_dir = expand("%:h")
-    let l:target_dir = l:cur_buf_dir . "/test"
+    let l:target_dir = l:cur_buf_dir . "/" . g:ojhelper#testcase_dir_name
     let l:dl_command = printf("oj download -d %s %s", l:target_dir, a:url)
     return l:dl_command
   endfunction
@@ -187,7 +190,7 @@ if executable('oj')
   function! s:MakeTestSamplesCommand(lang)
     let l:cur_buf_file = expand("%")
     let l:cur_buf_dir = expand("%:h")
-    let l:sample_file_dir = l:cur_buf_dir . "/test"
+    let l:sample_file_dir = l:cur_buf_dir . "/" . g:ojhelper#testcase_dir_name
     let l:lang_command = get(g:ojhelper#lang_commands, a:lang, '')
 
     let l:test_command = printf("oj test -c \"%s %s\" -d %s -t 4",
