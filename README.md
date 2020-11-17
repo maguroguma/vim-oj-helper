@@ -8,20 +8,6 @@ Ex commands for calling `oj`.
 
 Ex commands are not defined if `oj` is not executable.
 
-## Screencast
-
-Download sample test cases (wrapper command of `oj download {{URL}}`).
-
-![](./screencasts/ojdownload_hd.gif)
-
-Run a code for test cases (wrapper command of `oj test -c {{COMMAND}} {{TESTCASES}}`).
-
-![](./screencasts/ojlangtest_hd.gif)
-
-Submit a code (wrapper command of `oj submit {{URL}} {{FILE}}`).
-
-![](./screencasts/ojsubmit_hd.gif)
-
 ## Features
 
 vim-oj-helper provides Ex commands as below.
@@ -53,6 +39,39 @@ Plug 'my0k/vim-oj-helper'
   - `oj test -c "{{CURRENT BUFFER DIRECTORY}}/main" -d {{CURRENT BUFFER DIRECTORY}}/test -t 4`
 - Run `:OjLangCommandTest {{LANGUAGE}}`, then a current buffer file is run without compiling for sample cases.
   - `oj test -c "{{LANGUAGE COMMAND}} {{CURRENT BUFFER FILE}}" -d {{CURRENT BUFFER DIRECTORY}}/test -t 4`
+
+### Directory structure example
+
+e.g.: ABC180
+
+```
+contests/
+  └ ABC180/
+    ├ a/
+    │  └ a.go
+    ├ b/
+    ├ c/
+    ├ d/
+    ├ e/
+    └ f/
+```
+
+When you open `a.go` in the current buffer, and execute `:OjDownload` then compile a.go,
+     you get files like below.
+
+```
+contests/
+  └ ABC180/
+    ├ a/
+    │  ├ a.go
+    │  ├ main
+    │  └ test/
+    ├ b/
+    ├ c/
+    ├ d/
+    ├ e/
+    └ f/
+```
 
 ## Options
 
@@ -159,4 +178,18 @@ endif
 
 command! -nargs=0 OjTest :OjLangCommandTest go
 ```
+
+## Screencast
+
+Download sample test cases (wrapper command of `oj download {{URL}}`).
+
+![](./screencasts/ojdownload_hd.gif)
+
+Run a code for test cases (wrapper command of `oj test -c {{COMMAND}} {{TESTCASES}}`).
+
+![](./screencasts/ojlangtest_hd.gif)
+
+Submit a code (wrapper command of `oj submit {{URL}} {{FILE}}`).
+
+![](./screencasts/ojsubmit_hd.gif)
 
