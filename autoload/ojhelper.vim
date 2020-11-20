@@ -1,7 +1,7 @@
 "=============================================================================
 " vim-oj-helper
 " Author: @maguroguma0712
-" Last Change: 2020-11-16 02:11:39.
+" Last Change: 2020-11-18 23:23:13.
 
 if executable('oj')
   """
@@ -131,7 +131,7 @@ if executable('oj')
   " TestSamplesByExecutableBinary executes sample testing for a certain
   " executable binary file.
   function! g:ojhelper#TestSamplesByExecutableBinary()
-    let l:cur_buf_dir = expand("%:h")
+    let l:cur_buf_dir = expand("%:.:h")
     let l:lang_exe_bin = l:cur_buf_dir . "/" . g:ojhelper#executable_binary
 
     " error handling
@@ -173,7 +173,7 @@ if executable('oj')
 
   " Make oj's download command.
   function! s:MakeSampleDLCommand(url)
-    let l:cur_buf_dir = expand("%:h")
+    let l:cur_buf_dir = expand("%:.:h")
     let l:target_dir = l:cur_buf_dir . "/" . g:ojhelper#testcase_dir_name
     let l:dl_command = printf("oj download -d %s %s", l:target_dir, a:url)
     return l:dl_command
@@ -181,15 +181,15 @@ if executable('oj')
 
   " Make oj's submit command.
   function! s:MakeSubmitCommand(url)
-    let l:cur_buf_file = expand("%")
+    let l:cur_buf_file = expand("%:.")
     let l:submit_command = printf("oj submit -y %s %s", a:url, l:cur_buf_file)
     return l:submit_command
   endfunction
 
   " Make oj's test command.
   function! s:MakeTestSamplesCommand(lang)
-    let l:cur_buf_file = expand("%")
-    let l:cur_buf_dir = expand("%:h")
+    let l:cur_buf_file = expand("%:.")
+    let l:cur_buf_dir = expand("%:.:h")
     let l:sample_file_dir = l:cur_buf_dir . "/" . g:ojhelper#testcase_dir_name
     let l:lang_command = get(g:ojhelper#lang_commands, a:lang, '')
 
@@ -209,7 +209,7 @@ if executable('oj')
 
   " Check whether a language matches a file extension or not.
   function! s:DoesLanguageMatchFileExtension(lang)
-    let l:cur_buf_ext = expand("%:e")
+    let l:cur_buf_ext = expand("%:.:e")
     let l:lang_ext = get(g:ojhelper#lang_extensions, a:lang, '')
     if l:lang_ext !=# l:cur_buf_ext
       return 0
