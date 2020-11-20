@@ -56,8 +56,8 @@ contests/
     └ f/
 ```
 
-When you open `a.go` in the current buffer, and execute `:OjDownload` then compile a.go,
-     you get files like below.
+When you open `a.go` in the current buffer, and execute `:OjDownload`, then compile the code,
+     you get files like below as a result.
 
 ```
 contests/
@@ -174,9 +174,11 @@ if executable('oj')
   let g:oj_helper_search_url_s_line = 0
   let g:oj_helper_search_url_t_line = 5
   let g:oj_helper_testcase_dir_name = 'testcases'
+
+  " alias for your main language
+  command! -nargs=0 OjTest :OjLangCommandTest go
 endif
 
-command! -nargs=0 OjTest :OjLangCommandTest go
 ```
 
 ## Screencast
