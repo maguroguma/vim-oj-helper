@@ -1,7 +1,7 @@
 "=============================================================================
 " vim-oj-helper
 " Author: @maguroguma0712
-" Last Change: 2020-11-18 23:23:13.
+" Last Change: 2021-01-17 02:34:43.
 
 if executable('oj')
   """
@@ -84,7 +84,7 @@ if executable('oj')
   " SubmitCode submits a current buffer file.
   " This function assumes that a target URL is in a certain position in a
   " current buffer file.
-  function! g:ojhelper#SubmitCode()
+  function! g:ojhelper#SubmitCode(is_no_open)
     let l:url = s:ReadProblemURLFromCurrentBuffer()
 
     " error handling
@@ -103,7 +103,13 @@ if executable('oj')
       endif
     endif
 
-    let l:command = s:MakeSubmitCommand(l:url)
+    let l:command = ''
+    if a:is_no_open ==# ''
+      let l:command = s:MakeSubmitCommand(l:url)
+    else
+      let l:command = s:MakeNoOpenSubmitCommand(l:url)
+    endif
+
     echo "[Run] " . l:command . "\n"
     call execute('vs')
     call execute('terminal ' . l:command)
@@ -183,6 +189,12 @@ if executable('oj')
   function! s:MakeSubmitCommand(url)
     let l:cur_buf_file = expand("%:.")
     let l:submit_command = printf("oj submit -y %s %s", a:url, l:cur_buf_file)
+    return l:submit_command
+  endfunction
+  " Make oj's submit command with '--no-open' option
+  function! s:MakeNoOpenSubmitCommand(url)
+    let l:cur_buf_file = expand("%:.")
+    let l:submit_command = printf("oj submit -y --no-open %s %s", a:url, l:cur_buf_file)
     return l:submit_command
   endfunction
 
