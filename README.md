@@ -1,5 +1,7 @@
 # vim oj(online-judge-tools) helper
 
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](./LICENSE)
+
 Ex commands for calling `oj`.
 
 ## Requirement
